@@ -16,7 +16,7 @@ This directory contains the code to run on the Raspberry Pi 4B.
    sudo apt-get install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository1.0-dev libcairo2-dev python3-picamera2
    ```
 
-### 2. Clone the Repository
+### 2. **Clone the Repository**
    ```bash
    git clone https://github.com/JoseLopez36/RPi-Edge-vs-Local.git
    cd RPi-Edge-vs-Local/rpi_edge

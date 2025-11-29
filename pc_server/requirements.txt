@@ -1,10 +1,9 @@
-# PC Server Dependencies
+# MQTT dependencies
 paho-mqtt
-# Deep Learning Framework (TBD, putting popular ones commented out or generic)
-# tensorflow
-# torch
-# torchvision
-PyGObject
-numpy
+# Vision dependencies
 opencv-python
+# GStreamer dependencies
+PyGObject
+# Other dependencies
+numpy
 

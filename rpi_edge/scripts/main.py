@@ -7,7 +7,7 @@ from gpio_handler import GPIOHandler
 # Configuration
 MQTT_BROKER = "broker.hivemq.com"
 MQTT_TOPIC = "/control/action"
-PC_HOST = "192.168.1.100" # Replace with PC IP
+PC_HOST = "192.168.2.28" # Replace with PC IP
 PC_PORT = 5000
 
 def on_control_message(payload):

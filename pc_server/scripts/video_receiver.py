@@ -10,7 +10,7 @@ class VideoReceiver:
         self.loop = GLib.MainLoop()
         
     def start_receiving(self, port):
-        """Starts listening for video stream on the specified port using GStreamer."""
+        """Starts listening for video stream on the specified port using GStreamer"""
         print(f"Starting video receiver on port {port}")
         
         # Pipeline: TCP Server -> H.264 Parse -> H.264 Decode -> Video Convert -> AppSink
@@ -30,6 +30,7 @@ class VideoReceiver:
         )
         
         try:
+            # Launch the pipeline
             self.pipeline = Gst.parse_launch(pipeline_str)
             
             # Get the sink element to connect signal
@@ -46,9 +47,6 @@ class VideoReceiver:
                 print("Error: Unable to set the pipeline to the playing state.")
                 return
             
-            # Note: The main loop is usually run in the main thread (see main.py)
-            # If we needed a separate thread for GLib loop, we'd start it here.
-            
         except Exception as e:
             print(f"Error creating pipeline: {e}")
 
@@ -59,7 +57,7 @@ class VideoReceiver:
             self.pipeline = None
 
     def _on_new_sample(self, sink):
-        """Callback for appsink when a new frame is available."""
+        """Callback for appsink when a new frame is available"""
         sample = sink.emit("pull-sample")
         if not sample:
             return Gst.FlowReturn.ERROR
