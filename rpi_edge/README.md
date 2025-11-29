@@ -13,7 +13,17 @@ This directory contains the code to run on the Raspberry Pi 4B.
 ### 1. **System Dependencies:**
    ```bash
    sudo apt-get update
-   sudo apt-get install -y python3-gi python3-gi-cairo gir1.2-gtk-3.0 libgirepository1.0-dev libcairo2-dev python3-picamera2
+   sudo apt-get install libx264-dev libjpeg-dev
+   sudo apt-get install libgstreamer1.0-dev \
+     libgstreamer-plugins-base1.0-dev \
+     libgstreamer-plugins-bad1.0-dev \
+     gstreamer1.0-plugins-good \
+     gstreamer1.0-plugins-ugly \
+     gstreamer1.0-plugins-bad \
+     gstreamer1.0-tools \
+     gstreamer1.0-libcamera \
+     gstreamer1.0-gl \
+     gstreamer1.0-gtk3
    ```
 
 ### 2. **Clone the Repository**
