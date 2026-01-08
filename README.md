@@ -106,7 +106,7 @@ This project implements a closed-loop control system for automated gimbal tracki
 
 3. **Install Python Dependencies:**
    ```bash
-   TODO
+   pip install PyQt6
    ```
 
 4. **Run:**

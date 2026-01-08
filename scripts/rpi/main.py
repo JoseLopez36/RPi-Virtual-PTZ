@@ -34,28 +34,28 @@ def main():
     gimbal.connect()
     
     print("Initializing video streamer...")
-    streamer = VideoStreamer()
+    streamer = VideoStreamer(host=PC_HOST_IP, port=PC_PORT)
     
     try:
-        # 1. Track targets
-        target_list = tracker.track(SOURCE_URL)
-
-        # 2. Get current primary target
-        target = tracker.get_primary_target(target_list)
-
-        # 3. Calculate gimbal commands
-        pan, tilt = tracker.calculate_gimbal_command(target, SOURCE_WIDTH, SOURCE_HEIGHT)
-
-        # 4. Set gimbal commands
-        gimbal.set_pan_tilt(pan, tilt)
-
-        # 4. Stream annotated video
-        streamer.stream(???) # TODO: Add annotated video stream
-
-        # Keep main thread alive
         print("System running. Press Ctrl+C to stop")
         while True:
-            time.sleep(1)
+            # 1. Track targets
+            target_list = tracker.track(SOURCE_URL)
+
+            # 2. Get current primary target
+            target = tracker.get_primary_target(target_list)
+
+            # 3. Calculate gimbal commands
+            pan, tilt = tracker.calculate_gimbal_command(target, SOURCE_WIDTH, SOURCE_HEIGHT)
+
+            # 4. Set gimbal commands
+            gimbal.set_pan_tilt(pan, tilt)
+
+            # 5. Stream annotated video
+            streamer.start_stream(host=PC_HOST_IP, port=PC_PORT)
+
+            # Sleep to avoid high CPU usage
+            time.sleep(0.001)
 
     except KeyboardInterrupt:
         print("\nStopping services...")

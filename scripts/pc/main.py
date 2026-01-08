@@ -1,65 +1,84 @@
 """
-PC Server Node - Main Entry Point
+PC Server Node - PyQt6 Video Viewer (UDP MPEG-TS, H.264)
 
-This module receives and displays the annotated video stream from the Raspberry Pi.
+This module displays the annotated video stream from the Raspberry Pi using PyQt6
+
+Expected incoming stream: UDP MPEG-TS containing H.264 video.
+Example sender (RPi) pipeline sketch:
+  ... ! h264parse ! mpegtsmux ! udpsink host=<PC_IP> port=<PORT>
 """
 
-import time
 import sys
-import queue
-import cv2
-from video_receiver import VideoReceiver
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QSpinBox,
+    QToolBar,
+    QTimer
+)
+
+from feed_widget import FeedWidget
 
 # Configuration
-LISTEN_PORT = 5000
+PORT = 5000
 
-# Frame queue for video display
-frame_queue = queue.Queue(maxsize=10)
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("RPi Gimbal Tracker")
+        self.setMinimumSize(1920, 1080)
 
+        self.feed = FeedWidget(parent=self)
+        self.setCentralWidget(self.feed)
 
-def on_frame_received(frame):
-    """Callback when a video frame is received"""
-    if not frame_queue.full():
-        frame_queue.put(frame)
+        # Toolbar controls
+        tb = QToolBar("Controls", self)
+        tb.setMovable(False)
+        self.addToolBar(tb)
 
+        self.port_spin = QSpinBox(self)
+        self.port_spin.setRange(1, 65535)
+        self.port_spin.setValue(PORT)
+        self.port_spin.setToolTip("UDP listen port (MPEG-TS)")
+        tb.addWidget(self.port_spin)
+
+        start_action = tb.addAction("Start")
+        stop_action = tb.addAction("Stop")
+
+        start_action.triggered.connect(self._on_start)
+        stop_action.triggered.connect(self._on_stop)
+
+        # Status bar
+        self.statusBar().showMessage(f"Ready (port {PORT})")
+
+        # Feed signals
+        self.feed.status_text.connect(self.statusBar().showMessage)
+
+        # Autostart
+        QTimer.singleShot(0.1, self._on_start)
+
+    def _on_start(self):
+        self.feed.start(port=PORT)
+
+    def _on_stop(self):
+        self.feed.stop()
+
+    def closeEvent(self, event):
+        try:
+            self.feed.stop()
+        finally:
+            event.accept()
 
 def main():
-    print("PC Server Node Started")
-    print("Waiting for video stream from Raspberry Pi...")
-    
-    # Initialize video receiver
-    receiver = VideoReceiver(on_frame_received)
-    
-    try:
-        # Start receiving video stream
-        print(f"Starting video receiver on port {LISTEN_PORT}...")
-        receiver.start_receiving(LISTEN_PORT)
-        
-        # Display video frames
-        print("Video stream active. Press 'q' to quit.")
-        while True:
-            if not frame_queue.empty():
-                frame = frame_queue.get()
-                
-                # Display frame
-                cv2.imshow("RPi Gimbal Tracker - Annotated Video", frame)
-                
-                # Check for exit key
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    print("Quitting...")
-                    break
-            else:
-                # Sleep briefly to reduce CPU usage when no frames
-                time.sleep(0.001)
-            
-    except KeyboardInterrupt:
-        print("\nStopping services...")
-    finally:
-        receiver.stop_receiving()
-        cv2.destroyAllWindows()
-        print("Shutdown complete.")
-        sys.exit(0)
+    # Qt app
+    app = QApplication(sys.argv)
+    app.setApplicationName("RPi Gimbal Tracker")
+    app.setAttribute(Qt.ApplicationAttribute.AA_DontShowIconsInMenus, True)
 
+    win = MainWindow()
+    win.show()
+    return app.exec()
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
