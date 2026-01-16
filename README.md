@@ -1,111 +1,102 @@
-# RPi-Gimbal-Tracker
+# RPi-Virtual-PTZ
 
-**Real-time Human Tracking System with Gimbal Control**
+**An Embedded Virtual Tracking System with Visual Radar Feedback.**
 
-A Raspberry Pi-based system that captures video from a Siyi A8 Mini gimbal/camera, tracks humans using YOLO, automatically controls the gimbal to follow targets and streams annotated video to a PC.
+This project implements a smart surveillance system on a Raspberry Pi 4. It uses Computer Vision to detect humans and performs **Virtual Pan-Tilt-Zoom (e-PTZ)** by dynamically cropping the high-resolution camera stream. The Sense HAT is utilized as a "Visual Radar" to map targets and provides a physical interface to toggle focus between multiple subjects.
 
-## 📖 Project Overview
+---
 
-This project implements a closed-loop control system for automated gimbal tracking. The system:
+## 📋 Features
 
-1. **Captures** 1080p video from Siyi A8 Mini camera
-2. **Detects & Tracks** humans using YOLOv8 on Raspberry Pi
-3. **Controls** gimbal pan/tilt to automatically follow the target
-4. **Streams** annotated video to PC for monitoring
+* **Virtual PTZ:** Simulates mechanical camera movement by digitally cropping and zooming into the Region of Interest (ROI) of the active target.
+* **Multi-Target Tracking:** Detects multiple humans simultaneously using YOLO.
+* **Visual Radar (Sense HAT):** Maps the relative position of detected targets onto the 8x8 LED Matrix (Red pixel = Active Target, White pixels = Other targets, Black pixels = Background).
+* **Hardware Control:** Use the Sense HAT Joystick to cycle through detected people to change the PTZ focus target.
+* **Low-Latency Streaming:** Outputs the processed, stabilized video stream via GStreamer (RTSP/UDP).
 
-## 🛠 Hardware Components
+## 🛠️ Hardware & Requirements
 
-- **Embedded Device:** Raspberry Pi 4 Model B
-- **Camera/Gimbal:** Siyi A8 Mini (1080p gimbal camera)
-- **Display:** PC/Laptop for video monitoring
+* **Platform:** Raspberry Pi 4 Model B.
+* **Sensor:** Raspberry Pi Camera Module v2.
+* **I/O:** Raspberry Pi Sense HAT.
+* **Software Stack:**
+* Python 3.12+
+* GStreamer
+* Ultralytics (YOLO)
 
-## ⚙️ Technologies
+## ⚙️ Architecture
 
-- **Object Detection:** YOLO11n
-- **Tracking:** YOLO built-in tracker
-- **Video Streaming:** GStreamer (H.264 encoding at 1080p@30fps)
-- **Gimbal Control:** IP communication (Siyi protocol)
-- **Network:** Ethernet for Gimbal-RPi communication, Wi-Fi for RPi-PC communication
+The system operates in three concurrent stages:
 
-## 🚀 Quick Start
+1. **Acquisition:** Captures wide-angle video via `libcamerasrc`.
+2. **Processing:**
+* Detect bounding boxes of humans.
+* Map coordinates to the LED matrix.
+* Listen for Joystick events to select the `target_id`.
+3. **Output:**
+* `videocrop`: Adjusts the view based on the selected target's centroid.
+* `textoverlay`: displaying telemetry (Temp/FPS).
 
-### Prerequisites
+## 🚀 Installation
 
-- Raspberry Pi 4B with Raspberry Pi OS
-- Siyi A8 Mini gimbal/camera
-- PC with Linux/Windows (tested on Ubuntu 24.04)
-- Wi-Fi connection between RPi and PC
+### Raspberry Pi Setup
 
-### Setup
+1. **Clone the repository:**
+```bash
+git clone https://github.com/JoseLopez36/RPi-Virtual-PTZ.git
+cd RPi-Virtual-PTZ
+```
 
-#### Raspberry Pi (Edge)
+2. **Install system dependencies:**
+```bash
+sudo apt update
+sudo apt install python3-opencv gstreamer1.0-tools libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev sense-hat
+```
 
-1. **Install System Dependencies:**
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y python3-pip python3-venv
-   sudo apt-get install libgstreamer1.0-dev \
-     libgstreamer-plugins-base1.0-dev \
-     gstreamer1.0-plugins-good \
-     gstreamer1.0-plugins-ugly \
-     gstreamer1.0-plugins-bad \
-     gstreamer1.0-tools
-   ```
+3. **Install Python requirements:**
+```bash
+pip install -r requirements.txt
+```
 
-2. **Create and Run Virtual Environment:**
-   ```bash
-   cd scripts/rpi
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+### PC Setup (for Video Viewer)
 
-3. **Install Python Dependencies:**
-   ```bash
-   pip install ultralytics[export]
-   ```
+1. **Install GStreamer:**
+```bash
+sudo apt update
+sudo apt install gstreamer1.0-tools libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly
+```
 
-4. **Reboot:**
-   ```bash
-   sudo reboot
-   ```
+2. **Install PyQt6:**
+```bash
+pip install PyQt6
+```
 
-5. **Setup:**
-   ```bash
-   source venv/bin/activate
-   python3 setup.py
-   ```
+## ⚙️ Configuration
 
-6. **Run:**
-   ```bash
-   python3 main.py
-   ```
+The system uses `config/settings.json` for configuration. Edit this file to customize system parameters
 
-#### PC (Server)
+## 🎮 Usage
 
-1. **Install System Dependencies:**
-   ```bash
-   sudo apt-get update
-   sudo apt-get install libgstreamer1.0-dev \
-     libgstreamer-plugins-base1.0-dev \
-     gstreamer1.0-plugins-good \
-     gstreamer1.0-plugins-ugly \
-     gstreamer1.0-plugins-bad \
-     gstreamer1.0-tools
-   ```
+### Raspberry Pi
 
-2. **Create and Run Virtual Environment:**
-   ```bash
-   cd scripts/pc
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
+Run the main application on the Raspberry Pi:
 
-3. **Install Python Dependencies:**
-   ```bash
-   pip install PyQt6
-   ```
+```bash
+python3 source/rpi/main.py
+```
 
-4. **Run:**
-   ```bash
-   python3 main.py
-   ```
+### PC Viewer
+
+Run the PC video viewer to display the stream from the Raspberry Pi:
+
+```bash
+python3 source/pc/main.py
+```
+
+### Controls (Sense HAT Joystick)
+
+| Input | Action |
+| --- | --- |
+| **Left / Right** | Cycle between detected targets. |
+| **Middle Click** | Set PTZ to wide-angle view (no zoom). |
+| **Up / Down** | Adjust digital zoom level. |
