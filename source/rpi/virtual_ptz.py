@@ -13,6 +13,10 @@ class VirtualPTZ:
         self.last_detections = detections
         W, H = self.resolution
 
+        # Human-like aspect ratio (vertical)
+        # target_ratio = width / height
+        target_ratio = 9 / 16
+        
         # Default: centered view based on current zoom
         target_center_x, target_center_y = W / 2, H / 2
 
@@ -24,13 +28,16 @@ class VirtualPTZ:
                 x1, y1, x2, y2 = target['box']
                 target_center_x = (x1 + x2) / 2
                 target_center_y = (y1 + y2) / 2
-            else:
-                # Target lost, but we keep the ID (it might reappear)
-                pass
 
-        # Calculate crop dimensions
-        crop_w = W / self.current_zoom
+        # Calculate crop dimensions using the human-like aspect ratio
+        # We base the size on the height and the current zoom
         crop_h = H / self.current_zoom
+        crop_w = crop_h * target_ratio
+
+        # Ensure crop width doesn't exceed frame width (unlikely for vertical on landscape)
+        if crop_w > W:
+            crop_w = W
+            crop_h = crop_w / target_ratio
 
         # Calculate top-left corner
         crop_x = target_center_x - crop_w / 2
