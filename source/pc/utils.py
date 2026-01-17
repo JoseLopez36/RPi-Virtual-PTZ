@@ -1,5 +1,4 @@
 import json
-import os
 
 def load_config(config_path="config/settings.json"):
     try:

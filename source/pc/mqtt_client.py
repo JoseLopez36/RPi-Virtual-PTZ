@@ -28,9 +28,29 @@ class MQTTClient:
     def set_callback(self, callback):
         self.message_callback = callback
 
-    def publish_inference(self, detections):
-        payload = {"detections": detections}
-        self.client.publish(self.topics['inference'], json.dumps(payload))
+    def publish_inference(self, results):
+        if not self.running:
+            return
+
+        serializable_detections = []
+        for r in results:
+            boxes = r.boxes
+            for i in range(len(boxes)):
+                box = boxes[i]
+                detection = {
+                    "box": box.xyxy[0].tolist(),  # [x1, y1, x2, y2]
+                    "conf": float(box.conf[0]),
+                    "cls": int(box.cls[0]),
+                }
+                if box.id is not None:
+                    detection["id"] = int(box.id[0])
+                serializable_detections.append(detection)
+
+        payload = {"detections": serializable_detections}
+        try:
+            self.client.publish(self.topics['inference'], json.dumps(payload))
+        except Exception as e:
+            print(f"Error publishing inference: {e}")
 
     def start(self):
         if not self.running:

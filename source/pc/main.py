@@ -11,9 +11,8 @@ def main():
     if not config:
         return
 
-    # Initialize video capture using OpenCV
-    source = f"http://raspberrypi.local:{config['video']['port']}"
-    cap = cv2.VideoCapture(source)
+    # Initialize video capture
+    source = f"tcp://raspberrypi.local:{config['video']['port']}"
 
     tracker = YOLOTracker(config)
     mqtt = MQTTClient(config)
@@ -28,35 +27,24 @@ def main():
     mqtt.set_callback(on_mqtt_message)
 
     try:
+        results = tracker.start(source)
         mqtt.start()
         
-        while cap.isOpened():
-            # Read a frame from the video
-            success, frame = cap.read()
+        for result in results:
+            # Publish the inference results to MQTT
+            mqtt.publish_inference(result)
 
-            if success:
-                # Track the objects in the frame
-                results = tracker.track(frame)
+            # Display the frame in a single window named 'YOLO Inference'
+            cv2.imshow("YOLO Inference", result.plot())
 
-                # Plot the results on the frame
-                annotated_frame = results[0].plot()
-
-                # Publish the inference results to MQTT
-                mqtt.publish_inference(results)
-
-                # Display the annotated frame
-                cv2.imshow("YOLO Tracker", annotated_frame)
-
-                # Break the loop if 'q' is pressed
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
+            # Break the loop if 'q' is pressed
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
 
     except KeyboardInterrupt:
         print("\nStopping...")
     finally:
         mqtt.stop()
-        cap.release()
-        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
