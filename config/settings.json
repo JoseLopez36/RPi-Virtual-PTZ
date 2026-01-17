@@ -1,12 +1,12 @@
 {
   "streamer": {
     "port": 10001,
-    "width": 1920,
-    "height": 1080,
+    "width": 1280,
+    "height": 720,
     "bitrate": 1000000
   },
   "tracker": {
-    "model_path": "models/yolo11n.pt",
+    "model_path": "models/yolo11n_ncnn_model",
     "conf_threshold": 0.5
   },
   "virtual_ptz": {
