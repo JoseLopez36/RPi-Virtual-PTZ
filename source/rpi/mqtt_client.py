@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 
 class MQTTClient:
     def __init__(self, config):
-        self.broker = config['mqtt']['broker']
+        self.broker = "localhost"
         self.port = config['mqtt']['port']
         self.topics = config['mqtt']['topics']
         self.client = mqtt.Client()

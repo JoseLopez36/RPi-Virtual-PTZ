@@ -61,10 +61,27 @@ cd RPi-Virtual-PTZ
 2. **Install system dependencies:**
 ```bash
 sudo apt update
-sudo apt install python3-picamera2
+sudo apt install python3-picamera2 mosquitto mosquitto-clients
+sudo systemctl enable mosquitto
+sudo systemctl start mosquitto
 ```
 
-3. **Install Python requirements:**
+3. **Configure Mosquitto Broker (for external access):**
+   Open the configuration file:
+   ```bash
+   sudo nano /etc/mosquitto/conf.d/default.conf
+   ```
+   Paste the following lines:
+   ```text
+   listener 1883
+   allow_anonymous true
+   ```
+   Restart Mosquitto to apply changes:
+   ```bash
+   sudo systemctl restart mosquitto
+   ```
+
+4. **Install Python requirements:**
 ```bash
 pip install -r source/rpi/requirements.txt
 ```
