@@ -12,11 +12,6 @@
         "port": 10001,
         "resolution": [1280, 720]
     },
-    "camera": {
-        "rotation": 0,
-        "hflip": false,
-        "vflip": false
-    },
     "ai": {
         "model_path": "models/yolo11n.pt",
         "conf_threshold": 0.5,

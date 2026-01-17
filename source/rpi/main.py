@@ -1,15 +1,10 @@
 import time
-import sys
-import os
 
-# Add project root to sys.path to ensure imports work if run from root
-sys.path.append(os.getcwd())
-
-from utils import load_config
-from mqtt_client import MQTTClient
 from camera_stream import CameraStream
 from ptz_logic import PTZController
 from sense_hat_interface import SenseHatInterface
+from mqtt_client import MQTTClient
+from utils import load_config
 
 def main():
     print("Starting RPi Virtual PTZ system...")
@@ -19,8 +14,8 @@ def main():
         return
 
     # Initialize components
-    mqtt = MQTTClient(config)
     camera = CameraStream(config)
+    mqtt = MQTTClient(config)
     ptz = PTZController(config)
     sense_hat = SenseHatInterface()
 
@@ -35,8 +30,8 @@ def main():
     mqtt.set_callback(on_mqtt_message)
 
     try:
-        mqtt.start()
         camera.start()
+        mqtt.start()
         
         while True:
             # Main loop tasks (e.g., check joystick)
@@ -48,8 +43,8 @@ def main():
     except KeyboardInterrupt:
         print("\nStopping...")
     finally:
-        mqtt.stop()
         camera.stop()
+        mqtt.stop()
 
 if __name__ == "__main__":
     main()

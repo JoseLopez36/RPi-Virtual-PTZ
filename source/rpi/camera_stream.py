@@ -42,7 +42,7 @@ class CameraStream:
             self.server_socket.bind((self.host, self.port))
             self.server_socket.listen()
             
-            print("Waiting for connection...")
+            print("Waiting for stream connection...")
             self.server_socket.settimeout(1.0)
             
             while self.running:
