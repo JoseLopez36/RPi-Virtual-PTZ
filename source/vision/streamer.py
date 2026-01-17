@@ -73,8 +73,8 @@ class Streamer:
             # Reduce receive buffer on connection
             self.conn.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 65536)  # 64KB receive buffer
             
-            # Use unbuffered binary mode for lower latency
-            self.stream = self.conn.makefile("wb", buffering=0)
+            # Create buffered file object (required by FileOutput)
+            self.stream = self.conn.makefile("wb")
             self.encoder.output = FileOutput(self.stream)
 
             self.picam2.start_encoder(self.encoder)
