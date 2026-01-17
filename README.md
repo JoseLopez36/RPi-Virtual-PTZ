@@ -2,14 +2,14 @@
 
 **An Embedded Virtual Tracking System with Visual Radar Feedback.**
 
-This project implements a smart surveillance system on a Raspberry Pi 4. It uses Computer Vision to detect humans and performs **Virtual Pan-Tilt-Zoom (e-PTZ)** by dynamically cropping the high-resolution camera stream. The Sense HAT is utilized as a "Visual Radar" to map targets and provides a physical interface to toggle focus between multiple subjects.
+This project implements a smart surveillance system on a Raspberry Pi 4. It uses YOLOv11n to detect humans and performs **Virtual Pan-Tilt-Zoom** by dynamically cropping the high-resolution camera stream. The Sense HAT is utilized as a "visual radar" to map targets and provides a physical interface to toggle focus between multiple subjects.
 
 ---
 
 ## 📋 Features
 
 * **Virtual PTZ:** Simulates mechanical camera movement by digitally cropping and zooming into the Region of Interest (ROI) of the active target.
-* **Multi-Target Tracking:** Detects multiple humans simultaneously using YOLO.
+* **Multi-Target Tracking:** Detects multiple humans simultaneously using YOLOv11n.
 * **Visual Radar (Sense HAT):** Maps the relative position of detected targets onto the 8x8 LED Matrix (Red pixel = Active Target, White pixels = Other targets, Black pixels = Background).
 * **Hardware Control:** Use the Sense HAT Joystick to cycle through detected people to change the PTZ focus target.
 * **Low-Latency Streaming:** Outputs the processed, stabilized video stream over TCP (H.264).
@@ -28,22 +28,9 @@ This project implements a smart surveillance system on a Raspberry Pi 4. It uses
   * [Product Page](https://www.raspberrypi.com/products/sense-hat/)
   * [Documentation](https://www.raspberrypi.com/documentation/accessories/sense-hat.html)
 * **Software Stack:**
-* Python 3.12+
+* Python 3.11.2
 * Ultralytics (YOLO)
   * [YOLO on Raspberry Pi Guide](https://docs.ultralytics.com/guides/raspberry-pi/#flash-raspberry-pi-os-to-raspberry-pi)
-
-## ⚙️ Architecture
-
-The system operates in three concurrent stages:
-
-1. **Acquisition:** Captures wide-angle video via `libcamerasrc`.
-2. **Processing:**
-* Detect bounding boxes of humans.
-* Map coordinates to the LED matrix.
-* Listen for Joystick events to select the `target_id`.
-3. **Output:**
-* `videocrop`: Adjusts the view based on the selected target's centroid.
-* `textoverlay`: displaying telemetry (Temp/FPS).
 
 ## 🚀 Installation
 
@@ -68,7 +55,7 @@ pip install -r requirements.txt
 
 ## ⚙️ Configuration
 
-The system uses `config/settings.json` for configuration. Edit this file to customize system parameters
+The system uses `config/settings.json` for configuration. Edit this file to customize system parameters.
 
 ## 🎮 Usage
 

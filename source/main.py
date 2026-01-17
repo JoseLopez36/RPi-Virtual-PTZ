@@ -51,7 +51,7 @@ def main():
             source=streamer.get_url(),
             conf_threshold=tracker_cfg.get("conf_threshold", 0.5)
         )
-        tracker_results = tracker.start()
+        results = tracker.start()
 
         # sense_cfg = settings.get("sense_hat", {})
         # radar = VisualRadar(enabled=sense_cfg.get("enabled", True))
@@ -73,7 +73,7 @@ def main():
     try:
         print("System running. Press Ctrl+C to stop")
         # Process tracker results (generator yields Results objects)
-        for result in tracker_results:
+        for result in results:
             result.show()
     except KeyboardInterrupt:
         print("\nStopping services...")
