@@ -1,6 +1,5 @@
 import json
 import sys
-import time
 from pathlib import Path
 
 from vision.streamer import Streamer
@@ -35,30 +34,29 @@ def main():
             port=streamer_cfg.get("port", 10001),
             width=streamer_cfg.get("width", 1920),
             height=streamer_cfg.get("height", 1080),
-            bitrate=streamer_cfg.get("bitrate", 1000000),
-            framerate=streamer_cfg.get("framerate", 30)
+            bitrate=streamer_cfg.get("bitrate", 1000000)
         )
         streamer.start()
 
-        # print("Initializing tracker...")
-        # tracker_cfg = settings.get("tracker", {})
-        # tracker = Tracker(
-        #     model_path=tracker_cfg.get("model_path", "models/yolo11n.pt"),
-        #     source=streamer.get_url(),
-        #     conf_threshold=tracker_cfg.get("conf_threshold", 0.5)
-        # )
-        # results = tracker.start()
+        print("Initializing tracker...")
+        tracker_cfg = settings.get("tracker", {})
+        tracker = Tracker(
+            model_path=tracker_cfg.get("model_path", "models/yolo11n.pt"),
+            source=streamer.get_url(),
+            conf_threshold=tracker_cfg.get("conf_threshold", 0.5)
+        )
+        results = tracker.start()
 
-        # print("Initializing virtual PTZ...")
-        # virtual_ptz_cfg = settings.get("virtual_ptz", {})
-        # virtual_ptz = VirtualPTZ(
-        #     full_width=streamer_cfg.get("width", 1920),
-        #     full_height=streamer_cfg.get("height", 1080),
-        #     width=virtual_ptz_cfg.get("width", 640),
-        #     height=virtual_ptz_cfg.get("height", 360),
-        #     min_zoom=virtual_ptz_cfg.get("min_zoom", 1.0),
-        #     max_zoom=virtual_ptz_cfg.get("max_zoom", 2.0)
-        # )
+        print("Initializing virtual PTZ...")
+        virtual_ptz_cfg = settings.get("virtual_ptz", {})
+        virtual_ptz = VirtualPTZ(
+            full_width=streamer_cfg.get("width", 1920),
+            full_height=streamer_cfg.get("height", 1080),
+            width=virtual_ptz_cfg.get("width", 640),
+            height=virtual_ptz_cfg.get("height", 360),
+            min_zoom=virtual_ptz_cfg.get("min_zoom", 1.0),
+            max_zoom=virtual_ptz_cfg.get("max_zoom", 2.0)
+        )
 
     except Exception as e:
         print(f"Startup failed: {e}")
@@ -68,12 +66,9 @@ def main():
         print("System running. Press Ctrl+C to stop")
         
         # Process tracker results
-        # for result in results:
-        #     crop = virtual_ptz.get_crop_from_yolo_result(result)
-        #     print(crop)
-
-        while True:
-            time.sleep(1)
+        for result in results:
+            crop = virtual_ptz.get_crop_from_yolo_result(result)
+            print(crop)
 
     except KeyboardInterrupt:
         print("\nStopping services...")
