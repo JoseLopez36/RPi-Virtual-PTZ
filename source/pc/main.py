@@ -13,7 +13,7 @@ def main():
         return
 
     # Initialize video capture
-    source = f"tcp://raspberrypi.local:{config['video']['port']}"
+    source = f"tcp://{config['rpi']['ip']}:{config['video']['port']}"
 
     tracker = YOLOTracker(config)
     mqtt = MQTTClient(config)

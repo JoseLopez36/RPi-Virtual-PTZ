@@ -1,6 +1,9 @@
 {
+    "rpi": {
+        "ip": "10.213.4.170"
+    },
     "mqtt": {
-        "broker": "10.213.4.170", // Change to your MQTT broker IP
+        "broker": "10.213.4.170",
         "port": 1883,
         "topics": {
             "inference": "rpi-ptz/inference",
